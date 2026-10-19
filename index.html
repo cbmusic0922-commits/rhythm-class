@@ -106,6 +106,12 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 3px s
 .seg { display: inline-flex; flex-wrap: wrap; gap: 4px; background: var(--cell); padding: 4px; border-radius: 12px; align-self: flex-start; }
 .seg button { font: 500 15px var(--font-body); border: 0; background: transparent; color: var(--muted); padding: 8px 16px; border-radius: 9px; cursor: pointer; }
 .seg button[aria-selected="true"] { background: var(--accent); color: #fff; font-weight: 700; }
+.ugroup { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; padding-top: 6px; border-top: 1px solid var(--line); font-weight: 700; font-size: 15px; }
+.ugroup:first-child { border-top: 0; padding-top: 0; }
+.ugroup span { margin-right: 4px; }
+.ugroup button { font: 500 13px var(--font-body); border: 1px solid var(--line); background: var(--surface); color: var(--muted); padding: 3px 10px; border-radius: 999px; cursor: pointer; }
+.ugroup button:hover { color: var(--ink); border-color: var(--muted); }
+.pgroup { grid-column: 1 / -1; font-size: 13px; font-weight: 700; color: var(--muted); margin-top: 2px; }
 .unit-say { font-family: var(--font-display); font-weight: 400; font-size: 18px; color: var(--accent); line-height: 1.2; }
 .unit input { accent-color: var(--accent); align-self: flex-start; margin: 0; }
 .unit svg { width: 100%; max-width: 120px; height: 64px; color: var(--ink); margin-top: -14px; }
@@ -193,18 +199,19 @@ select { font: 500 15px var(--font-body); padding: 8px 10px; border-radius: 10px
 <body>
 <div class="wrap">
   <header>
-    <h1>리듬 교실<small>한 마디 리듬 패턴 2개를 만들고, 읽고, 박자에 맞춰 쳐 보세요.</small></h1>
+    <h1>리듬 교실<small>한 마디 리듬 패턴 3개를 만들고, 읽고, 박자에 맞춰 쳐 보세요.</small></h1>
   </header>
 
-  <!-- 리듬 패턴 (1마디 × 2개) -->
+  <!-- 리듬 패턴 (1마디 × 3개) -->
   <section id="play" class="panel">
     <div>
       <h2>사용할 리듬 꼴</h2>
-      <p class="hint">패턴마다 리듬 꼴을 따로 고를 수 있어요. 패턴 1의 리듬 꼴을 체크해 만든 다음, <b>패턴 2의 리듬 꼴</b>로 바꿔 다른 리듬 꼴을 골라 만드세요.</p>
+      <p class="hint">패턴마다 리듬 꼴을 따로 고를 수 있어요. 패턴 1의 리듬 꼴을 체크해 만든 다음, <b>패턴 2</b>, <b>패턴 3의 리듬 꼴</b>로 차례로 바꿔 가며 다른 리듬 꼴을 골라 만드세요.</p>
     </div>
     <div class="seg" role="tablist" id="target">
       <button role="tab" data-t="0">패턴 1의 리듬 꼴</button>
       <button role="tab" data-t="1">패턴 2의 리듬 꼴</button>
+      <button role="tab" data-t="2">패턴 3의 리듬 꼴</button>
     </div>
     <div class="units" id="units"></div>
     <div class="controls">
@@ -250,8 +257,8 @@ select { font: 500 15px var(--font-body); padding: 8px 10px; border-radius: 10px
     </div>
     <div class="bars" id="bars"></div>
     <div class="controls">
-      <button id="listenBoth" class="btn">🔊 두 마디 이어서 듣기</button>
-      <button id="challengeBoth" class="btn">👏 두 마디 이어서 도전</button>
+      <button id="listenBoth" class="btn">🔊 세 마디 이어서 듣기</button>
+      <button id="challengeBoth" class="btn">👏 세 마디 이어서 도전</button>
     </div>
     <div class="stage">
       <div style="display:flex;flex-direction:column;gap:12px;min-width:0">
@@ -290,7 +297,7 @@ select { font: 500 15px var(--font-body); padding: 8px 10px; border-radius: 10px
 
   <section class="tips" aria-label="수업 활용 팁">
     <div><h3>말리듬으로 읽기</h3><p>음표 아래 아이스크림 이름을 박에 맞춰 소리 내어 읽은 뒤 들어보기로 확인합니다.</p></div>
-    <div><h3>듣고 찾기</h3><p>말리듬을 끄고 패턴 1과 2 중 하나를 들려준 다음, 어느 패턴인지 맞혀 봅니다.</p></div>
+    <div><h3>듣고 찾기</h3><p>말리듬을 끄고 패턴 1~3 중 하나를 들려준 다음, 어느 패턴인지 맞혀 봅니다.</p></div>
     <div><h3>모둠 16마디</h3><p>모둠이 주사위로 고른 학생 패턴을 보고, 리듬 꼴을 끌어다 1마디씩 16마디를 채운 뒤 함께 연주합니다.</p></div>
     <div><h3>읽고 치기</h3><p>처음에는 4분음표·8분음표만 체크해서 시작하고, 익숙해지면 점8분음표와 셋잇단음표를 더해 갑니다.</p></div>
   </section>
@@ -416,9 +423,15 @@ select { font: 500 15px var(--font-body); padding: 8px 10px; border-radius: 10px
     SES: { beats: 1, on: [0, 1 / 4, 3 / 4], say: '수박바', name: '16분 + 8분 + 16분' },
     SSE: { beats: 1, on: [0, 1 / 4, 2 / 4], say: '구구콘', name: '16분 2개 + 8분' },
     DES: { beats: 1, on: [0, 3 / 4], say: '티코', name: '점8분 + 16분' },
-    T:   { beats: 1, on: [0, 1 / 3, 2 / 3], say: '바밤바', name: '셋잇단음표' }
+    T:   { beats: 1, on: [0, 1 / 3, 2 / 3], say: '바밤바', name: '셋잇단음표' },
+    DQE: { beats: 2, on: [0, 3 / 2], say: '씨유', name: '점4분 + 8분' },
+    DQSS: { beats: 2, on: [0, 3 / 2, 7 / 4], say: '지에스', name: '점4분 + 16분 2개' }
   };
   const UNIT_KEYS = Object.keys(UNITS);
+  const UNIT_GROUPS = [
+    { label: '1박 리듬 꼴', keys: UNIT_KEYS.filter(k => UNITS[k].beats === 1) },
+    { label: '2박 리듬 꼴', keys: UNIT_KEYS.filter(k => UNITS[k].beats === 2) }
+  ];
   const gBpm = document.getElementById('gBpm');
   const gMetro = document.getElementById('gMetro');
   const gSay = document.getElementById('gSay');
@@ -470,7 +483,15 @@ select { font: 500 15px var(--font-body); padding: 8px 10px; border-radius: 10px
       const beam = (a, z, y) => { s += `<rect class="beam" x="${stem(a) - 1}" y="${y}" width="${stem(z) - stem(a) + 2}" height="6"/>`; };
       const stub = (j, dir, y) => { s += `<rect class="beam" x="${dir > 0 ? stem(j) - 1 : stem(j) - 11}" y="${y}" width="12" height="6"/>`; };
       const y2 = TOP + 10;
-      if (xs.length > 1) beam(0, xs.length - 1, TOP);
+      // 점4분음표 묶음: 점4분은 꼬리 없음 + 점, 뒤 음표만 따로 꼬리/묶음
+      const dotted = k === 'DQE' || k === 'DQSS';
+      if (dotted) s += `<circle cx="${xs[0] + 14}" cy="${Y - 3}" r="2.6" fill="currentColor"/>`;
+      if (k === 'DQE') {
+        const sx = stem(1);
+        s += `<path class="beam" d="M${sx - 1} ${TOP} C ${sx + 2} ${TOP + 10} ${sx + 16} ${TOP + 14} ${sx + 12} ${TOP + 32} C ${sx + 12} ${TOP + 20} ${sx + 4} ${TOP + 16} ${sx - 1} ${TOP + 14} Z"/>`;
+      }
+      if (k === 'DQSS') { beam(1, 2, TOP); beam(1, 2, TOP + 10); }
+      if (xs.length > 1 && !dotted) beam(0, xs.length - 1, TOP);
       if (k === 'S') beam(0, 3, y2);
       if (k === 'ESS') beam(1, 2, y2);
       if (k === 'SSE') beam(0, 1, y2);
@@ -490,12 +511,25 @@ select { font: 500 15px var(--font-body); padding: 8px 10px; border-radius: 10px
 
   // 리듬 꼴 선택: 패턴 1, 패턴 2가 각자 따로 고름
   const loadSet = a => { const s = new Set(Array.isArray(a) ? a.filter(k => UNITS[k]) : UNIT_KEYS); return s.size ? s : new Set(UNIT_KEYS); };
-  const sets = [loadSet(saved.units1 || saved.units), loadSet(saved.units2 || saved.units)];
-  let target = saved.target === 1 ? 1 : 0;
-  const saveSets = () => save({ units1: [...sets[0]], units2: [...sets[1]], target });
+  const sets = [loadSet(saved.units1 || saved.units), loadSet(saved.units2 || saved.units), loadSet(saved.units3 || saved.units)];
+  let target = [0, 1, 2].includes(saved.target) ? saved.target : 0;
+  const saveSets = () => save({ units1: [...sets[0]], units2: [...sets[1]], units3: [...sets[2]], target });
   const targetEl = document.getElementById('target');
-  UNIT_KEYS.forEach(k => {
-    const r = renderRhythm([k], { full: false, BW: k === 'H' ? 64 : 80 });
+  UNIT_GROUPS.forEach(grp => {
+    const head = document.createElement('div');
+    head.className = 'ugroup';
+    head.innerHTML = `<span>${grp.label}</span><button type="button" data-all="1">모두 체크</button><button type="button" data-all="0">모두 해제</button>`;
+    head.querySelectorAll('button').forEach(b => b.onclick = () => {
+      const set = sets[target];
+      grp.keys.forEach(k => b.dataset.all === '1' ? set.add(k) : set.delete(k));
+      if (!set.size) set.add('Q');
+      saveSets(); syncUnits();
+    });
+    unitsEl.appendChild(head);
+    grp.keys.forEach(addUnitCard);
+  });
+  function addUnitCard(k) {
+    const r = renderRhythm([k], { full: false, BW: UNITS[k].beats === 2 ? 64 : 80 });
     const lab = document.createElement('label');
     lab.className = 'unit';
     lab.innerHTML = `<input type="checkbox" id="u-${k}"><svg viewBox="${r.vb}" aria-hidden="true">${r.html}</svg><span>${UNITS[k].name}</span><b class="unit-say">${UNITS[k].say}</b>`;
@@ -506,17 +540,18 @@ select { font: 500 15px var(--font-body); padding: 8px 10px; border-radius: 10px
       saveSets();
     };
     unitsEl.appendChild(lab);
-  });
+  }
   function syncUnits() {
     UNIT_KEYS.forEach(k => { document.getElementById('u-' + k).checked = sets[target].has(k); });
     targetEl.querySelectorAll('button').forEach(b => b.setAttribute('aria-selected', +b.dataset.t === target));
     document.getElementById('makeOne').textContent = `패턴 ${target + 1} 만들기`;
-    document.getElementById('excludeOther').textContent = `패턴 ${2 - target}에 쓴 리듬 꼴 빼고 고르기`;
+    document.getElementById('excludeOther').textContent = `패턴 ${[1, 2, 3].filter(n => n !== target + 1).join('·')}에 쓴 리듬 꼴 빼고 고르기`;
   }
   targetEl.querySelectorAll('button').forEach(b => b.onclick = () => { target = +b.dataset.t; saveSets(); syncUnits(); });
 
   // 한 마디(4박) 만들기
-  function makeBar(other, set) {
+  // others: 겹치면 안 되는 다른 패턴들
+  function makeBar(others, set) {
     const pool0 = [...set];
     for (let tries = 0; tries < 200; tries++) {
       const units = []; let left = 4;
@@ -528,13 +563,13 @@ select { font: 500 15px var(--font-body); padding: 8px 10px; border-radius: 10px
       }
       const variety = new Set(units).size;
       if (pool0.length > 1 && variety < 2 && tries < 150) continue;
-      if (other && units.join() === other.join() && tries < 190) continue;
+      if (others.some(o => o.join() === units.join()) && tries < 190) continue;
       return units;
     }
     return ['Q', 'Q', 'Q', 'Q'];
   }
 
-  const bars = [0, 1].map(i => {
+  const bars = [0, 1, 2].map(i => {
     const card = document.createElement('div');
     card.className = 'barcard';
     card.innerHTML = `<div class="barhead"><h3>패턴 ${i + 1}</h3><div class="controls">` +
@@ -557,14 +592,14 @@ select { font: 500 15px var(--font-body); padding: 8px 10px; border-radius: 10px
     resultEl.innerHTML = '<span class="detail">' + bars.map(b => `패턴 ${b.i + 1}: <b>${b.units.map(k => UNITS[k].say).join(' | ')}</b>`).join('<br>') + '</span>';
   }
   function rerollBar(bar) {
-    const other = bars[1 - bar.i];
-    setBar(bar, makeBar(other.units, sets[bar.i]));
+    const others = bars.filter(b => b !== bar && b.units.length).map(b => b.units);
+    setBar(bar, makeBar(others, sets[bar.i]));
     save({ bars: bars.map(b => b.units) });
     describe();
   }
   function newBars() {
-    setBar(bars[0], makeBar(null, sets[0]));
-    setBar(bars[1], makeBar(bars[0].units, sets[1]));
+    bars.forEach(b => { b.units = []; });
+    bars.forEach(b => setBar(b, makeBar(bars.filter(o => o.units.length).map(o => o.units), sets[b.i])));
     save({ bars: bars.map(b => b.units) });
     describe();
   }
@@ -575,11 +610,12 @@ select { font: 500 15px var(--font-body); padding: 8px 10px; border-radius: 10px
   }));
   document.getElementById('makeOne').onclick = () => {
     rerollBar(bars[target]);
-    if (target === 0) resultEl.innerHTML += '<span class="detail">이제 <b>패턴 2의 리듬 꼴</b>을 눌러 다른 리듬 꼴을 고른 뒤 패턴 2를 만들어 보세요.</span>';
+    const next = target + 2;
+    if (next <= bars.length) resultEl.innerHTML += `<span class="detail">이제 <b>패턴 ${next}의 리듬 꼴</b>을 눌러 다른 리듬 꼴을 고른 뒤 패턴 ${next}${next === 3 ? '을' : '를'} 만들어 보세요.</span>`;
   };
-  // 다른 패턴에 들어 있는 리듬 꼴을 빼고 나머지만 체크
+  // 다른 패턴들에 들어 있는 리듬 꼴을 빼고 나머지만 체크
   document.getElementById('excludeOther').onclick = () => {
-    const used = new Set(bars[1 - target].units);
+    const used = new Set(bars.filter(b => b.i !== target).flatMap(b => b.units));
     const rest = UNIT_KEYS.filter(k => !used.has(k));
     if (!rest.length) return;
     sets[target] = new Set(rest); saveSets(); syncUnits();
@@ -675,7 +711,7 @@ select { font: 500 15px var(--font-body); padding: 8px 10px; border-radius: 10px
       const avg = diffs.reduce((a, b) => a + b, 0) / diffs.length;
       tend = avg > 0.04 ? ' · 전체적으로 조금 늦어요' : avg < -0.04 ? ' · 전체적으로 조금 빨라요' : ' · 박자 감각이 좋아요';
     }
-    const which = list.length > 1 ? '두 마디' : `패턴 ${list[0].i + 1}`;
+    const which = list.length > 1 ? `${list.length}마디` : `패턴 ${list[0].i + 1}`;
     resultEl.innerHTML =
       `<span class="pct">${pct}점</span><span class="msg">${which} · ${msg}</span>` +
       `<span class="detail">정확 ${nP} · 조금 어긋남 ${nG} · 놓침 ${nM}${extra ? ` · 더 친 박 ${extra}` : ''}${tend}${streak >= 2 ? ` · ${streak}번 연속 성공` : ''}</span>`;
@@ -697,8 +733,12 @@ select { font: 500 15px var(--font-body); padding: 8px 10px; border-radius: 10px
   });
 
   const validBar = u => Array.isArray(u) && u.every(k => UNITS[k]) && u.reduce((a, k) => a + UNITS[k].beats, 0) === 4;
-  if (Array.isArray(saved.bars) && saved.bars.length === 2 && saved.bars.every(validBar)) {
-    bars.forEach((b, i) => setBar(b, saved.bars[i])); describe();
+  // 저장된 패턴은 그대로 쓰고, 없는 패턴(예: 새로 생긴 패턴 3)만 새로 만듦
+  const savedBars = Array.isArray(saved.bars) ? saved.bars : [];
+  if (savedBars.length >= 2 && savedBars.slice(0, 2).every(validBar)) {
+    bars.forEach((b, i) => { if (validBar(savedBars[i])) setBar(b, savedBars[i]); });
+    bars.forEach(b => { if (!b.units.length) setBar(b, makeBar(bars.filter(o => o.units.length).map(o => o.units), sets[b.i])); });
+    save({ bars: bars.map(b => b.units) }); describe();
   } else newBars();
 
   // ---------- 16마디 리듬 만들기 ----------
@@ -717,8 +757,14 @@ select { font: 500 15px var(--font-body); padding: 8px 10px; border-radius: 10px
 
   // 리듬 꼴 팔레트 (끌어다 놓기 + 누르기)
   let drag = null;
-  UNIT_KEYS.forEach(k => {
-    const r = renderRhythm([k], { full: false, BW: k === 'H' ? 56 : 72 });
+  UNIT_GROUPS.forEach(grp => {
+    const head = document.createElement('div');
+    head.className = 'pgroup'; head.textContent = grp.label;
+    songPalEl.appendChild(head);
+    grp.keys.forEach(addPalTile);
+  });
+  function addPalTile(k) {
+    const r = renderRhythm([k], { full: false, BW: UNITS[k].beats === 2 ? 56 : 72 });
     const b = document.createElement('button');
     b.className = 'pal'; b.dataset.k = k;
     b.setAttribute('aria-label', `${UNITS[k].name} (${UNITS[k].say}) 넣기`);
@@ -753,7 +799,7 @@ select { font: 500 15px var(--font-body); padding: 8px 10px; border-radius: 10px
     b.addEventListener('pointercancel', () => { if (drag && drag.ghost) drag.ghost.remove(); drag = null; setOver(-1); });
     b.addEventListener('click', e => { if (e.detail === 0) addUnit(selected, k, true); }); // 키보드 입력
     songPalEl.appendChild(b);
-  });
+  }
   function barAt(x, y) {
     const el = document.elementFromPoint(x, y);
     return el && el.classList && el.classList.contains('hit') ? +el.dataset.bar : -1;
