@@ -244,7 +244,18 @@ select { font: 500 15px var(--font-body); padding: 8px 10px; border-radius: 10px
             <option value="bongoHi">봉고</option>
             <option value="clap">손뼉</option>
           </optgroup>
+          <optgroup label="큰 타악기">
+            <option value="timpani">팀파니</option>
+            <option value="tom">큰 톰톰</option>
+            <option value="conga">콩가</option>
+            <option value="cymbal">심벌즈</option>
+            <option value="gong">징</option>
+            <option value="jangguLo+jangguHi">장구 (궁 + 따)</option>
+          </optgroup>
           <optgroup label="섞어 쓰기 (박 첫 음 + 나머지)">
+            <option value="timpani+snare">팀파니 + 작은북</option>
+            <option value="tom+conga">큰 톰톰 + 콩가</option>
+            <option value="gong+jangguHi">징 + 장구 채편</option>
             <option value="kick+stick">큰북 + 리듬 스틱</option>
             <option value="woodblock+castanets">우드블록 + 캐스터네츠</option>
             <option value="tambourine+stick">탬버린 + 리듬 스틱</option>
@@ -310,7 +321,11 @@ select { font: 500 15px var(--font-body); padding: 8px 10px; border-radius: 10px
   function ac() {
     if (!ctx) {
       ctx = new (window.AudioContext || window.webkitAudioContext)();
-      master = ctx.createGain(); master.gain.value = 0.8; master.connect(ctx.destination);
+      // 소리를 키우되 찢어지지 않도록 압축기를 거쳐 내보냄
+      const comp = ctx.createDynamicsCompressor();
+      comp.threshold.value = -14; comp.knee.value = 10; comp.ratio.value = 6; comp.attack.value = 0.003; comp.release.value = 0.15;
+      comp.connect(ctx.destination);
+      master = ctx.createGain(); master.gain.value = 1.25; master.connect(comp);
       noiseBuf = ctx.createBuffer(1, ctx.sampleRate * 0.5, ctx.sampleRate);
       const d = noiseBuf.getChannelData(0);
       for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
@@ -399,6 +414,56 @@ select { font: 500 15px var(--font-body); padding: 8px 10px; border-radius: 10px
     bongoLo(t) {
       const o = ctx.createOscillator(); o.type = 'sine'; o.frequency.setValueAtTime(260, t); o.frequency.exponentialRampToValueAtTime(215, t + 0.15);
       o.connect(env(t, 0.9, 0.22)); o.start(t); o.stop(t + 0.25);
+    },
+    // 큰 타악기
+    timpani(t) {
+      [[98, 1], [147, 0.35], [196, 0.15]].forEach(([f, g]) => {
+        const o = ctx.createOscillator(); o.type = 'sine';
+        o.frequency.setValueAtTime(f * 1.04, t); o.frequency.exponentialRampToValueAtTime(f, t + 0.08);
+        o.connect(env(t, g, 1.3)); o.start(t); o.stop(t + 1.4);
+      });
+      noiseSrc(t, 0.06, 'lowpass', 700).connect(env(t, 0.6, 0.05));
+    },
+    tom(t) {
+      const o = ctx.createOscillator(); o.type = 'sine';
+      o.frequency.setValueAtTime(140, t); o.frequency.exponentialRampToValueAtTime(82, t + 0.35);
+      o.connect(env(t, 1, 0.55)); o.start(t); o.stop(t + 0.6);
+      noiseSrc(t, 0.05, 'lowpass', 1200).connect(env(t, 0.45, 0.04));
+    },
+    conga(t) {
+      const o = ctx.createOscillator(); o.type = 'sine';
+      o.frequency.setValueAtTime(370, t); o.frequency.exponentialRampToValueAtTime(310, t + 0.12);
+      o.connect(env(t, 1, 0.3)); o.start(t); o.stop(t + 0.32);
+      noiseSrc(t, 0.03, 'bandpass', 1800, 1.5).connect(env(t, 0.35, 0.02));
+    },
+    cymbal(t) {
+      noiseSrc(t, 0.5, 'highpass', 5500).connect(env(t, 0.55, 1.4));
+      [3150, 4420, 5340, 7110].forEach(f => {
+        const o = ctx.createOscillator(); o.type = 'square'; o.frequency.value = f;
+        const hp = ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 3000;
+        o.connect(hp); hp.connect(env(t, 0.035, 1.2)); o.start(t); o.stop(t + 1.3);
+      });
+    },
+    gong(t) {
+      [[82, 0.7], [165.5, 0.35], [247, 0.18], [331, 0.08]].forEach(([f, g]) => {
+        const o = ctx.createOscillator(); o.type = 'sine'; o.frequency.value = f;
+        const lfo = ctx.createOscillator(), lg = ctx.createGain(); lfo.frequency.value = 4; lg.gain.value = f * 0.006;
+        lfo.connect(lg); lg.connect(o.frequency);
+        const g0 = ctx.createGain(); g0.gain.setValueAtTime(0.0001, t); g0.gain.exponentialRampToValueAtTime(g, t + 0.04); g0.gain.exponentialRampToValueAtTime(0.0001, t + 2.6);
+        g0.connect(bus || master);
+        o.connect(g0); o.start(t); o.stop(t + 2.7); lfo.start(t); lfo.stop(t + 2.7);
+      });
+    },
+    jangguLo(t) {
+      const o = ctx.createOscillator(); o.type = 'sine';
+      o.frequency.setValueAtTime(105, t); o.frequency.exponentialRampToValueAtTime(70, t + 0.25);
+      o.connect(env(t, 1, 0.5)); o.start(t); o.stop(t + 0.55);
+      noiseSrc(t, 0.04, 'lowpass', 500).connect(env(t, 0.5, 0.03));
+    },
+    jangguHi(t) {
+      noiseSrc(t, 0.1, 'bandpass', 2600, 1.2).connect(env(t, 0.9, 0.07));
+      const o = ctx.createOscillator(); o.type = 'triangle'; o.frequency.value = 620;
+      o.connect(env(t, 0.4, 0.06)); o.start(t); o.stop(t + 0.08);
     }
   };
   const latency = () => (ctx.baseLatency || 0) + (ctx.outputLatency || 0);
@@ -424,6 +489,7 @@ select { font: 500 15px var(--font-body); padding: 8px 10px; border-radius: 10px
     SSE: { beats: 1, on: [0, 1 / 4, 2 / 4], say: '구구콘', name: '16분 2개 + 8분' },
     DES: { beats: 1, on: [0, 3 / 4], say: '티코', name: '점8분 + 16분' },
     T:   { beats: 1, on: [0, 1 / 3, 2 / 3], say: '바밤바', name: '셋잇단음표' },
+    SDE: { beats: 1, on: [0, 1 / 4], say: '엔초', name: '16분 + 점8분' },
     DQE: { beats: 2, on: [0, 3 / 2], say: '씨유', name: '점4분 + 8분' },
     DQSS: { beats: 2, on: [0, 3 / 2, 7 / 4], say: '지에스', name: '점4분 + 16분 2개' }
   };
@@ -497,6 +563,7 @@ select { font: 500 15px var(--font-body); padding: 8px 10px; border-radius: 10px
       if (k === 'SSE') beam(0, 1, y2);
       if (k === 'SES') { stub(0, 1, y2); stub(2, -1, y2); }
       if (k === 'DES') { stub(1, -1, y2); s += `<circle cx="${xs[0] + 14}" cy="${Y - 3}" r="2.6" fill="currentColor"/>`; }
+      if (k === 'SDE') { stub(0, 1, y2); s += `<circle cx="${xs[1] + 14}" cy="${Y - 3}" r="2.6" fill="currentColor"/>`; }
       if (k === 'T') s += `<text class="tri" x="${(stem(0) + stem(2)) / 2}" y="${TOP - 6}" text-anchor="middle">3</text>`;
       if (sayY !== null) s += `<text class="say" x="${x - 8}" y="${sayY}">${u.say}</text>`;
       b += u.beats;
